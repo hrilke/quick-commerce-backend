@@ -1,0 +1,9 @@
+rootProject.name = 'quick-commerce-backend'
+
+include 'shared'
+include 'graphql-gateway'
+include 'catalogue-service'
+include 'orders-service'
+include 'auth-service'
+include 'payment-service'
+

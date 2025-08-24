@@ -1,0 +1,174 @@
+type Query {
+    # Product queries
+    product(id: ID!): Product
+    products(page: Int, size: Int, category: String): ProductPage
+
+    # Cart queries
+    cart(userId: ID!): Cart
+
+    # Order queries
+    order(id: ID!): Order
+    orders(userId: ID!, page: Int, size: Int): OrderPage
+
+    # User queries
+    me: User
+}
+
+type Mutation {
+    # Auth mutations
+    login(email: String!, password: String!): AuthResponse
+    register(input: RegisterInput!): AuthResponse
+    refreshToken(refreshToken: String!): AuthResponse
+
+    # Cart mutations
+    addToCart(userId: ID!, productId: ID!, quantity: Int!): Cart
+    removeFromCart(userId: ID!, productId: ID!): Cart
+    updateCartItem(userId: ID!, productId: ID!, quantity: Int!): Cart
+
+    # Order mutations
+    createOrder(input: CreateOrderInput!): Order
+    cancelOrder(orderId: ID!): Order
+
+    # Payment mutations
+    createPayment(orderId: ID!, amount: Float!): PaymentResponse
+    verifyPayment(paymentId: String!, signature: String!): PaymentVerification
+}
+
+type Product {
+    id: ID!
+    name: String!
+    description: String
+    price: Float!
+    stockQuantity: Int!
+    category: String!
+    imageUrl: String
+    isActive: Boolean!
+}
+
+type ProductPage {
+    content: [Product!]!
+    totalElements: Int!
+    totalPages: Int!
+    size: Int!
+    number: Int!
+}
+
+type Cart {
+    id: ID!
+    userId: ID!
+    items: [CartItem!]!
+    totalAmount: Float!
+    updatedAt: String!
+}
+
+type CartItem {
+    id: ID!
+    product: Product!
+    quantity: Int!
+    subtotal: Float!
+}
+
+type Order {
+    id: ID!
+    userId: ID!
+    status: OrderStatus!
+    items: [OrderItem!]!
+    totalAmount: Float!
+    shippingAddress: Address!
+    createdAt: String!
+    updatedAt: String!
+}
+
+type OrderItem {
+    id: ID!
+    product: Product!
+    quantity: Int!
+    price: Float!
+    subtotal: Float!
+}
+
+type User {
+    id: ID!
+    email: String!
+    firstName: String!
+    lastName: String!
+    role: UserRole!
+    createdAt: String!
+}
+
+type AuthResponse {
+    token: String!
+    refreshToken: String!
+    user: User!
+}
+
+type PaymentResponse {
+    id: String!
+    orderId: String!
+    amount: Float!
+    currency: String!
+    status: PaymentStatus!
+    createdAt: String!
+}
+
+type PaymentVerification {
+    success: Boolean!
+    message: String!
+}
+
+enum OrderStatus {
+    CREATED
+    CONFIRMED
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+enum UserRole {
+    USER
+    ADMIN
+    MANAGER
+}
+
+enum PaymentStatus {
+    CREATED
+    PROCESSING
+    COMPLETED
+    FAILED
+    REFUNDED
+}
+
+input RegisterInput {
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+}
+
+input CreateOrderInput {
+    userId: ID!
+    items: [OrderItemInput!]!
+    shippingAddress: AddressInput!
+}
+
+input OrderItemInput {
+    productId: ID!
+    quantity: Int!
+}
+
+input AddressInput {
+    street: String!
+    city: String!
+    state: String!
+    zipCode: String!
+    country: String!
+}
+
+type Address {
+    street: String!
+    city: String!
+    state: String!
+    zipCode: String!
+    country: String!
+}

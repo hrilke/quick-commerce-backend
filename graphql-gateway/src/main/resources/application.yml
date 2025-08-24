@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: graphql-gateway
+  profiles:
+    active: local
+  graphql:
+    websocket:
+      path: /graphql
+    web:
+      path: /graphql
+  security:
+    enabled: true
+
+server:
+  port: 8080
+
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:3001
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,graphql
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.quickcommerce.gateway: INFO
+    graphql: DEBUG

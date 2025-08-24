@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-validation'
+    api 'org.springframework.boot:spring-boot-starter-security'
+    api 'com.fasterxml.jackson.core:jackson-databind'
+    api 'org.postgresql:postgresql'
+    api 'org.projectlombok:lombok'
+
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+configurations {
+    compileClasspath {
+        extendsFrom annotationProcessor
+    }
+}

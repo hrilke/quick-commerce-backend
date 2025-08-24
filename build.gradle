@@ -14,7 +14,8 @@ allprojects {
     }
 }
 
-subprojects {
+// Configure only service modules, NOT shared module
+configure(subprojects.findAll { it.name != 'shared' }) {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
@@ -24,7 +25,7 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation project(':shared')  // All services depend on shared
         implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -35,3 +36,16 @@ subprojects {
         useJUnitPlatform()
     }
 }
+
+// Configure shared module separately
+project(':shared') {
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        imports {
+            mavenBom 'org.springframework.boot:spring-boot-dependencies:3.1.5'
+        }
+    }
+}
+

@@ -1,0 +1,24 @@
+spring:
+  redis:
+    host: redis
+    port: 6379
+
+grpc:
+  client:
+    catalogue-service:
+      address: 'static://catalogue-service:9091'
+      negotiation-type: plaintext
+    orders-service:
+      address: 'static://orders-service:9092'
+      negotiation-type: plaintext
+    auth-service:
+      address: 'static://auth-service:9093'
+      negotiation-type: plaintext
+    payment-service:
+      address: 'static://payment-service:9094'
+      negotiation-type: plaintext
+
+cors:
+  allowed-origins:
+    - http://frontend:3000
+    - http://admin-panel:3001

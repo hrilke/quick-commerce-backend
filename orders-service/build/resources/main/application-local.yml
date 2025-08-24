@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/quickcommerce
+    username: admin
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+
+grpc:
+  client:
+    catalogue-service:
+      address: 'static://localhost:9091'
+      negotiation-type: plaintext
+    auth-service:
+      address: 'static://localhost:9093'
+      negotiation-type: plaintext
+    payment-service:
+      address: 'static://localhost:9094'
+      negotiation-type: plaintext
+
+logging:
+  level:
+    root: INFO
+    com.quickcommerce: DEBUG
+    org.hibernate.SQL: DEBUG

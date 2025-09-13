@@ -1,0 +1,86 @@
+###############################################
+# Quick Commerce Backend - .gitignore
+# Purpose: Keep VCS history clean by excluding
+#          build outputs, IDE metadata, secrets,
+#          and transient caches.
+###############################################
+
+# === Build system (Gradle) ===
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# ==== Java / JVM artifacts ====
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar
+*.tar.gz
+hs_err_pid*
+replay_pid*
+
+# Spring Boot generated files
+*.pid
+
+# === IDE / Editor metadata ===
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VSCode
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# === Logs / Temp ===
+*.log
+logs/
+tmp/
+temp/
+*.swp
+*.swo
+
+# === OS / File system ===
+.DS_Store
+Thumbs.db
+
+# === Environment / Secrets ===
+*.env
+.env
+.env.*
+!env.example
+
+# === Test / Coverage ===
+coverage/
+*.lcov
+jacoco.exec
+**/jacoco/*.exec
+surefire-reports/
+
+# === Generated sources (if any appear) ===
+generated-sources/
+
+# === Node / Frontend (if accidentally added) ===
+node_modules/
+dist/
+build/webpack/
+
+# === Misc ===
+*.orig
+*.bak
+*.tmp
+
+# Keep README & scripts even if under ignored dirs
+!**/README.md
+!infrastructure/scripts/**
+
+# End of file

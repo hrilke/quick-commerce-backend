@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.5' apply false
     id 'io.spring.dependency-management' version '1.1.3' apply false
-    id 'com.google.protobuf' version '0.9.4' apply false
 }
 
 allprojects {
@@ -14,7 +13,6 @@ allprojects {
     }
 }
 
-// Configure only service modules, NOT shared module
 configure(subprojects.findAll { it.name != 'shared' }) {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
@@ -25,8 +23,7 @@ configure(subprojects.findAll { it.name != 'shared' }) {
     }
 
     dependencies {
-        implementation project(':shared')  // All services depend on shared
-        implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
+        implementation project(':shared')
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.junit.jupiter:junit-jupiter'
         testImplementation 'org.mockito:mockito-core'
@@ -37,7 +34,6 @@ configure(subprojects.findAll { it.name != 'shared' }) {
     }
 }
 
-// Configure shared module separately
 project(':shared') {
     apply plugin: 'java-library'
     apply plugin: 'io.spring.dependency-management'

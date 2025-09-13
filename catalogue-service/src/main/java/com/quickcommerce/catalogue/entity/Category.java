@@ -14,7 +14,7 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"products"})
 public class Category extends BaseEntity {
 
     @Column(name = "title", nullable = false, unique = true)

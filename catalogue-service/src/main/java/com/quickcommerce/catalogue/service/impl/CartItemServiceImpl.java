@@ -27,6 +27,19 @@ public class CartItemServiceImpl implements CartItemService {
     private final ProductRepo productRepo;
 
     @Override
+    /**
+     * Add (or stack) a product in the user's cart.
+     *
+     * CONTRACT:
+     *   Use Cases : User adds items to cart from catalogue/product page.
+     *   Invariants: Existing line -> quantity increments; new line -> created; quantity from request > 0 expected.
+     *
+     * RATIONALE:
+     *   Consolidates idempotent add logic so controllers & clients don't replicate merge semantics.
+     *
+     * @param request cart item creation request
+     * @return resulting cart line DTO
+     */
     public CartItemResponse add(CartItemRequest request) {
         Product product = productRepo.findById(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.getProductId()));
@@ -45,6 +58,21 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
+    /**
+     * Set an absolute quantity for a cart line.
+     *
+     * CONTRACT:
+     *   Use Cases : User adjusts quantity in cart UI.
+     *   Invariants: Minimum enforced at 1; 404 if (user, product) line absent.
+     *
+     * RATIONALE:
+     *   Central place for future max quantity / stock validation.
+     *
+     * @param userId user id
+     * @param productId product id
+     * @param quantity desired quantity (<=0 coerced to 1)
+     * @return updated cart line DTO
+     */
     public CartItemResponse updateQuantity(UUID userId, UUID productId, int quantity) {
         if (quantity < 1) quantity = 1;
         CartItem item = cartItemRepo.findByUserIdAndProduct_Id(userId, productId)
@@ -54,11 +82,36 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
+    /**
+     * Remove a single cart line.
+     *
+     * CONTRACT:
+     *   Use Cases : User deletes product from cart.
+     *   Invariants: Silent if already absent.
+     *
+     * RATIONALE:
+     *   Keeps controller free of repository details & enforces consistent semantics.
+     *
+     * @param userId user id
+     * @param productId product id
+     */
     public void remove(UUID userId, UUID productId) {
         cartItemRepo.deleteByUserIdAndProduct_Id(userId, productId);
     }
 
     @Override
+    /**
+     * Clear entire cart for a user.
+     *
+     * CONTRACT:
+     *   Use Cases : Checkout completion / manual clear.
+     *   Invariants: Operation idempotent.
+     *
+     * RATIONALE:
+     *   Batch deletion avoids per-row loop at repository layer.
+     *
+     * @param userId user id
+     */
     public void clear(UUID userId) {
         List<CartItem> all = cartItemRepo.findByUserId(userId);
         cartItemRepo.deleteAllInBatch(all);
@@ -66,6 +119,22 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * List paginated cart items for a user.
+     *
+     * CONTRACT:
+     *   Use Cases : Cart view rendering.
+     *   Invariants: size bounded [1,100]; default sort updatedAt DESC.
+     *
+     * RATIONALE:
+     *   Standardized pagination contract & DTO mapping.
+     *
+     * @param userId user id
+     * @param page page index
+     * @param size page size
+     * @param sort sort directives
+     * @return paged cart items
+     */
     public PageResponse<CartItemResponse> list(UUID userId, int page, int size, String sort) {
         size = Math.min(Math.max(size, 1), 100);
         page = Math.max(page, 0);

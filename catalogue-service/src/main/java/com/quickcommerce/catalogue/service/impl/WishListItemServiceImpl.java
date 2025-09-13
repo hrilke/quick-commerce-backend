@@ -29,6 +29,19 @@ public class WishListItemServiceImpl implements WishListItemService {
     private final WishListItemMapper mapper;
 
     @Override
+    /**
+     * Add a product to the user's wishlist if not already present.
+     *
+     * CONTRACT:
+     *   Use Cases : User expresses interest / save for later.
+     *   Invariants: Wishlist uniqueness per (user, product); no quantity dimension.
+     *
+     * RATIONALE:
+     *   Prevents duplicate rows and centralizes existence check.
+     *
+     * @param request wishlist add request
+     * @return resulting wishlist item DTO
+     */
     public WishListItemResponse add(WishListItemRequest request) {
         Product product = productRepo.findById(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.getProductId()));
@@ -44,11 +57,36 @@ public class WishListItemServiceImpl implements WishListItemService {
     }
 
     @Override
+    /**
+     * Remove a product from wishlist.
+     *
+     * CONTRACT:
+     *   Use Cases : User un-saves an item.
+     *   Invariants: Silent if already removed.
+     *
+     * RATIONALE:
+     *   Encapsulates repository key details.
+     *
+     * @param userId user id
+     * @param productId product id
+     */
     public void remove(UUID userId, UUID productId) {
         wishListItemRepo.deleteByUserIdAndProduct_Id(userId, productId);
     }
 
     @Override
+    /**
+     * Clear all wishlist items for a user.
+     *
+     * CONTRACT:
+     *   Use Cases : User resets wishlist.
+     *   Invariants: Idempotent.
+     *
+     * RATIONALE:
+     *   Batch delete reduces DB round trips.
+     *
+     * @param userId user id
+     */
     public void clear(UUID userId) {
         List<WishListItem> all = wishListItemRepo.findByUserId(userId);
         wishListItemRepo.deleteAllInBatch(all);
@@ -56,6 +94,22 @@ public class WishListItemServiceImpl implements WishListItemService {
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * List paginated wishlist items for a user.
+     *
+     * CONTRACT:
+     *   Use Cases : Wishlist page rendering.
+     *   Invariants: size bounded [1,100]; default sort updatedAt DESC.
+     *
+     * RATIONALE:
+     *   Provides stable DTO contract & pagination semantics.
+     *
+     * @param userId user id
+     * @param page page index
+     * @param size page size
+     * @param sort sort directives
+     * @return paged wishlist items
+     */
     public PageResponse<WishListItemResponse> list(UUID userId, int page, int size, String sort) {
         size = Math.min(Math.max(size, 1), 100);
         page = Math.max(page, 0);

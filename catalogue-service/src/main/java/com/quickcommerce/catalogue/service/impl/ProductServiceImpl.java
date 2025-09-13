@@ -33,6 +33,20 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper mapper;
 
     @Override
+    /**
+     * Create a new product aggregate.
+     *
+     * CONTRACT:
+     *   Use Cases : Backoffice / ingestion pipeline creating catalogue entries.
+     *   Invariants: Category links synchronized both sides; request categories may be null/empty.
+     *   Validation: Existence/uniqueness assumed handled at DB (e.g. SKU unique).
+     *
+     * RATIONALE:
+     *   Centralizes mapping + relationship wiring so controllers remain thin and join table stays consistent.
+     *
+     * @param request incoming product definition
+     * @return persisted product as DTO
+     */
     public ProductResponse create(ProductRequest request) {
         Product entity = mapper.toEntity(request);
         attachCategories(entity, request.getCategorySlugs());
@@ -41,6 +55,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    /**
+     * Update an existing product.
+     *
+     * CONTRACT:
+     *   Use Cases : Admin edits to catalogue content.
+     *   Invariants: Non-existent id -> 404; categories diff-applied (add/remove) atomically.
+     *   Validation: Price/unit constraints could be added here later.
+     *
+     * RATIONALE:
+     *   Keeps category association diff logic in one place preventing stale join rows.
+     *
+     * @param id product identifier
+     * @param request new field values & category slugs
+     * @return updated product DTO
+     */
     public ProductResponse update(UUID id, ProductRequest request) {
         Product entity = productRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
@@ -50,6 +79,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    /**
+     * Delete a product by id.
+     *
+     * CONTRACT:
+     *   Use Cases : Product retirement.
+     *   Invariants: 404 if id absent; cascading of join rows handled by JPA relationship.
+     *
+     * RATIONALE:
+     *   Explicit existence check yields clearer API semantics vs silent delete.
+     *
+     * @param id product id
+     */
     public void delete(UUID id) {
         if (!productRepo.existsById(id)) throw new ResourceNotFoundException("Product", "id", id);
         productRepo.deleteById(id);
@@ -57,6 +98,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * Fetch a single product.
+     *
+     * CONTRACT:
+     *   Use Cases : Detail page / internal lookups.
+     *   Invariants: 404 if not found.
+     *
+     * RATIONALE:
+     *   Shields consumers from entity internals and guarantees consistent not-found handling.
+     *
+     * @param id product id
+     * @return DTO representation
+     */
     public ProductResponse get(UUID id) {
         Product p = productRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
@@ -65,6 +119,26 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * List products with optional filtering and sorting.
+     *
+     * CONTRACT:
+     *   Use Cases : Catalogue browsing, search, merchandising.
+     *   Invariants: size bounded to [1,100]; page coerced >= 0; default sort updatedAt DESC.
+     *   Filters  : text (title/description), categories (slugs), price range.
+     *
+     * RATIONALE:
+     *   Lazy builds the Specification only when filters exist for simpler SQL & better index use.
+     *
+     * @param page zero-based page index
+     * @param size requested page size
+     * @param search optional free text
+     * @param categories optional category slugs
+     * @param minPrice optional lower price
+     * @param maxPrice optional upper price
+     * @param sort comma separated sort directives field[:asc|desc]
+     * @return paged DTOs
+     */
     public PageResponse<ProductResponse> list(int page, int size, String search, Set<String> categories,
                                               BigDecimal minPrice, BigDecimal maxPrice, String sort) {
         size = Math.min(Math.max(size, 1), 100);

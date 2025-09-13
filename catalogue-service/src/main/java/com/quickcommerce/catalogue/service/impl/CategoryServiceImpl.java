@@ -23,6 +23,19 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepo categoryRepo;
 
     @Override
+    /**
+     * Create a category.
+     *
+     * CONTRACT:
+     *   Use Cases : Backoffice category management.
+     *   Invariants: slug uniqueness enforced at DB; no products assigned here.
+     *
+     * RATIONALE:
+     *   Keeps entity construction & persistence concerns out of controller layer.
+     *
+     * @param request category request payload
+     * @return created category DTO
+     */
     public CategoryResponse create(CategoryRequest request) {
         Category c = new Category();
         c.setTitle(request.getTitle());
@@ -34,6 +47,20 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    /**
+     * Update category fields.
+     *
+     * CONTRACT:
+     *   Use Cases : Admin editing metadata (title, description, imagery).
+     *   Invariants: 404 if id absent.
+     *
+     * RATIONALE:
+     *   Centralizes mutation enabling future validation / audit hooks.
+     *
+     * @param id category id
+     * @param request new field values
+     * @return updated DTO
+     */
     public CategoryResponse update(UUID id, CategoryRequest request) {
         Category c = categoryRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
@@ -45,6 +72,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    /**
+     * Delete a category.
+     *
+     * CONTRACT:
+     *   Use Cases : Category retirement / cleanup.
+     *   Invariants: 404 if id absent.
+     *
+     * RATIONALE:
+     *   Explicit existence check yields predictable API contract.
+     *
+     * @param id category id
+     */
     public void delete(UUID id) {
         if (!categoryRepo.existsById(id)) throw new ResourceNotFoundException("Category", "id", id);
         categoryRepo.deleteById(id);
@@ -52,6 +91,19 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * Get category by id.
+     *
+     * CONTRACT:
+     *   Use Cases : UI detail cards / internal resolution.
+     *   Invariants: 404 on missing.
+     *
+     * RATIONALE:
+     *   Provides DTO mapping boundary.
+     *
+     * @param id category id
+     * @return DTO
+     */
     public CategoryResponse get(UUID id) {
         Category c = categoryRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
@@ -60,6 +112,23 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * List / search categories with pagination.
+     *
+     * CONTRACT:
+     *   Use Cases : Category browsing & admin search.
+     *   Invariants: size bounded [1,100]; page coerced >=0; default sort updatedAt DESC.
+     *   Search   : case-insensitive contains on title OR description.
+     *
+     * RATIONALE:
+     *   Avoids duplicated pagination logic across controllers.
+     *
+     * @param page page index
+     * @param size requested size
+     * @param search optional text
+     * @param sort sort directives
+     * @return paged DTOs
+     */
     public PageResponse<CategoryResponse> list(int page, int size, String search, String sort) {
         size = Math.min(Math.max(size, 1), 100);
         page = Math.max(page, 0);

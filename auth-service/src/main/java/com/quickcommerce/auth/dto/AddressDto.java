@@ -3,7 +3,6 @@ package com.quickcommerce.auth.dto;
 import com.quickcommerce.auth.entity.AddressType;
 import lombok.Builder;
 import lombok.Value;
-
 import java.util.UUID;
 
 @Value

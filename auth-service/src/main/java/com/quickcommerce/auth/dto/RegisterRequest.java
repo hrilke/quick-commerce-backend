@@ -11,9 +11,8 @@ public class RegisterRequest {
     @NotBlank
     private String email;
 
-    // Username removed; email is the identifier.
-
     @NotBlank
     @Size(min = 8, max = 128)
     private String password;
+
 }

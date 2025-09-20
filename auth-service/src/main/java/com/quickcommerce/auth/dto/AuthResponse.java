@@ -7,4 +7,8 @@ import lombok.Value;
 @Builder
 public class AuthResponse {
     String message;
+    String accessToken;
+    String tokenType;
+    Long expiresIn;
+    String refreshToken;
 }

@@ -8,7 +8,11 @@ import lombok.*;
 @Table(name = "addresses", schema = "auth", indexes = {
         @Index(name = "idx_address_user", columnList = "user_id")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Address extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

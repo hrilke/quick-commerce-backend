@@ -1,57 +1,56 @@
 package com.quickcommerce.auth.controller;
 
 import com.quickcommerce.auth.dto.*;
-import com.quickcommerce.auth.entity.*;
-import com.quickcommerce.auth.repository.UserRepository;
+import com.quickcommerce.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
-import java.util.stream.Collectors;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
-    private final UserRepository userRepository; // minimal for now
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        // NOTE: Placeholder logic (no hashing yet) - DO NOT use in production
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body(AuthResponse.builder().message("email_taken").build());
+        var resp = authService.register(request);
+        if ("email_taken".equals(resp.getMessage())) {
+            return ResponseEntity.badRequest().body(resp);
         }
-        User user = User.builder()
-                .email(request.getEmail())
-                .passwordHash("{plain}" + request.getPassword()) // placeholder tag
-                .status(UserStatus.ACTIVE)
-                .build();
-        userRepository.save(user);
-        return ResponseEntity.ok(AuthResponse.builder().message("registered").build());
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        // Placeholder: just acknowledge - real password check & token issuance deferred
-        return ResponseEntity.ok(AuthResponse.builder().message("login_not_implemented").build());
+        return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestParam("refreshToken") String refreshToken) {
+        var resp = authService.refresh(refreshToken);
+        if ("invalid_refresh_token".equals(resp.getMessage())) {
+            return ResponseEntity.badRequest().body(resp);
+        }
+        return ResponseEntity.ok(resp);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> me(@RequestParam("email") String email) {
-        return userRepository.findByEmail(email)
-                .map(u -> UserDto.builder()
-                        .id(u.getId())
-                        .email(u.getEmail())
-                        .roles(u.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet()))
-                        .permissions(u.getRoles().stream()
-                                .flatMap(r -> r.getPermissions().stream())
-                                .map(p -> p.getName())
-                                .collect(Collectors.toSet()))
-                        .build())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserDto> me() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+        }
+        String email = String.valueOf(auth.getPrincipal());
+        var dto = authService.me(email);
+        return dto == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/admin/secure")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> adminOnly() {
+        return ResponseEntity.ok("you are admin");
     }
 }

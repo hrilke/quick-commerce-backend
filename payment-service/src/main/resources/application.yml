@@ -11,17 +11,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
 
 server:
   port: 8084
-
-grpc:
-  server:
-    port: 9094
 
 razorpay:
   key-id: ${RAZORPAY_KEY_ID:your_key_id}

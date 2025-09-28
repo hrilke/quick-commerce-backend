@@ -22,8 +22,17 @@ configure(subprojects.findAll { it.name != 'shared' }) {
         sourceCompatibility = JavaVersion.VERSION_17
     }
 
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:2022.0.4"
+        }
+    }
+
     dependencies {
-        implementation project(':shared')
+        // Do not add shared module to discovery-service to avoid pulling Spring Security into Eureka server
+        if (project.name != 'discovery-service') {
+            implementation project(':shared')
+        }
         implementation 'org.springframework.boot:spring-boot-starter-validation'
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'

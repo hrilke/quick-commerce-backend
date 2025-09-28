@@ -13,6 +13,7 @@ dependencyManagement {
 dependencies {
     implementation project(':shared')
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

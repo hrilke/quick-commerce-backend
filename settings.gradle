@@ -6,4 +6,5 @@ include 'orders-service'
 include 'auth-service'
 include 'payment-service'
 include 'discovery-service'
+include 'api-gateway'
 

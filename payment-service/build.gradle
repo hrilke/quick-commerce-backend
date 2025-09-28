@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation project(':shared')
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'com.razorpay:razorpay-java:1.4.4'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

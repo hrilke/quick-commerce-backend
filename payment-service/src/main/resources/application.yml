@@ -1,12 +1,15 @@
 spring:
   application:
     name: payment-service
-  profiles:
-    active: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/quickcommerce
+    username: admin
+    password: password
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -14,6 +17,13 @@ spring:
 
 server:
   port: 8084
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
 
 razorpay:
   key-id: ${RAZORPAY_KEY_ID:your_key_id}
@@ -37,4 +47,7 @@ management:
 
 logging:
   level:
+    root: INFO
+    com.quickcommerce: DEBUG
     com.quickcommerce.payment: INFO
+    org.hibernate.SQL: DEBUG

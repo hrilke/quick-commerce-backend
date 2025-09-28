@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/quickcommerce
+    username: admin
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+razorpay:
+  key-id: rzp_test_1234567890
+  key-secret: test_secret_key
+  webhook-secret: test_webhook_secret
+
+logging:
+  level:
+    root: INFO
+    com.quickcommerce: DEBUG
+    org.hibernate.SQL: DEBUG

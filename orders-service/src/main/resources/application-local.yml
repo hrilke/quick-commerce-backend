@@ -30,3 +30,7 @@ logging:
     root: INFO
     com.quickcommerce: DEBUG
     org.hibernate.SQL: DEBUG
+
+services:
+  payment-service:
+    url: ${PAYMENT_SERVICE_URL:http://localhost:8084}

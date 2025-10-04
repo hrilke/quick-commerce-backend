@@ -3,6 +3,7 @@ package com.quickcommerce.catalogue.service.impl;
 import com.quickcommerce.catalogue.dto.CartItemRequest;
 import com.quickcommerce.catalogue.dto.CartItemResponse;
 import com.quickcommerce.catalogue.dto.ProductCard;
+import com.quickcommerce.shared.dto.CartItemCheckoutDto;
 import com.quickcommerce.shared.dto.PageResponse;
 import com.quickcommerce.catalogue.entity.CartItem;
 import com.quickcommerce.catalogue.entity.Product;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -151,6 +153,36 @@ public class CartItemServiceImpl implements CartItemService {
                 .first(result.isFirst())
                 .last(result.isLast())
                 .build();
+    }
+
+    /**
+     * List cart checkout items for a user.
+     *
+     * CONTRACT:
+     *   Use Cases : Cart level checkout, Data mappings
+     *
+     * RATIONALE:
+     *   OrderItem creation right from the cart
+     *
+     * @param userId user id
+     * @return paged cart Checkout items for OrderItem persistence
+     */
+    @Override
+    public List<CartItemCheckoutDto> getCartItemListForCheckout(UUID userId) {
+        List<CartItem> cartItemList = cartItemRepo.findByUserId(userId);
+        
+        return cartItemList.stream()
+                .map(ci -> {
+                    Product p = ci.getProduct();
+                    return CartItemCheckoutDto.builder()
+                            .productId(p.getId())
+                            .quantity(ci.getQuantity())
+                            .mrp(p.getMrp())
+                            .discountPrice(p.getDiscountPrice())
+                            .sku(p.getSku())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     private CartItemResponse toResponse(CartItem c) {

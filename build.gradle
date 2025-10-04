@@ -29,8 +29,8 @@ configure(subprojects.findAll { it.name != 'shared' }) {
     }
 
     dependencies {
-        // Do not add shared module to discovery-service or api-gateway
-        if (project.name != 'discovery-service' && project.name != 'api-gateway') {
+    // Do not add shared module to discovery-service
+    if (project.name != 'discovery-service') {
             implementation project(':shared')
         }
         implementation 'org.springframework.boot:spring-boot-starter-validation'

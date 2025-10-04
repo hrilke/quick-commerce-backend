@@ -2,6 +2,7 @@ package com.quickcommerce.catalogue.controller;
 
 import com.quickcommerce.catalogue.dto.CartItemRequest;
 import com.quickcommerce.catalogue.dto.CartItemResponse;
+import com.quickcommerce.shared.dto.CartItemCheckoutDto;
 import com.quickcommerce.shared.dto.PageResponse;
 import com.quickcommerce.catalogue.service.CartItemService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -43,9 +45,9 @@ public class CartItemController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/empty-cart/{userId}")
     @Operation(summary = "Clear cart for user")
-    public ResponseEntity<Void> clear(@PathVariable UUID userId) {
+    public ResponseEntity<Void> clear(@PathVariable(value = "userId") UUID userId) {
         cartItemService.clear(userId);
         return ResponseEntity.noContent().build();
     }
@@ -57,5 +59,10 @@ public class CartItemController {
                                                @RequestParam(defaultValue = "20") int size,
                                                @RequestParam(required = false) String sort) {
         return cartItemService.list(userId, page, size, sort);
+    }
+
+    @GetMapping("/checkout/{userId}")
+    List<CartItemCheckoutDto> getCartItemListByUserId(@PathVariable UUID userId) {
+        return cartItemService.getCartItemListForCheckout(userId);
     }
 }

@@ -2,9 +2,9 @@ spring:
   application:
     name: payment-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/quickcommerce
-    username: admin
-    password: password
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/quickcommerce
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -16,7 +16,7 @@ spring:
         format_sql: true
 
 server:
-  port: 8084
+  port: ${SERVER_PORT:8084}
 
 eureka:
   client:
@@ -31,10 +31,10 @@ razorpay:
   webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:your_webhook_secret}
 
 payment:
-  timeout: 600000  # 10 minutes
+  timeout: ${PAYMENT_TIMEOUT:600000}
   retry:
-    max-attempts: 3
-    delay: 5000  # 5 seconds
+    max-attempts: ${PAYMENT_RETRY_ATTEMPTS:3}
+    delay: ${PAYMENT_RETRY_DELAY:5000}
 
 management:
   endpoints:
@@ -48,6 +48,6 @@ management:
 logging:
   level:
     root: INFO
-    com.quickcommerce: DEBUG
-    com.quickcommerce.payment: INFO
-    org.hibernate.SQL: DEBUG
+    "com.quickcommerce": DEBUG
+    "com.quickcommerce.payment": INFO
+    "org.hibernate.SQL": DEBUG

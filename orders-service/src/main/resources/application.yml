@@ -2,9 +2,9 @@ spring:
   application:
     name: orders-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/quickcommerce
-    username: admin
-    password: password
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/quickcommerce
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,18 +14,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      timeout: 2000ms
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
 
 server:
-  port: 8082
+  port: ${SERVER_PORT:8082}
 
 eureka:
   client:
@@ -36,9 +27,9 @@ eureka:
 
 order:
   processing:
-    timeout: 300000  # 5 minutes
+    timeout: ${ORDER_PROCESSING_TIMEOUT:300000}
   cancellation:
-    window: 1800000  # 30 minutes
+    window: ${ORDER_CANCELLATION_WINDOW:1800000}
 
 management:
   endpoints:
@@ -52,6 +43,6 @@ management:
 logging:
   level:
     root: INFO
-    com.quickcommerce: DEBUG
-    com.quickcommerce.orders: INFO
-    org.hibernate.SQL: DEBUG
+    "com.quickcommerce": DEBUG
+    "com.quickcommerce.orders": INFO
+    "org.hibernate.SQL": DEBUG

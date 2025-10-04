@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "orders")
@@ -27,4 +28,7 @@ public class Order extends BaseEntity {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> items = new ArrayList<>();
+
+    @Column(name = "total_amount", precision = 12, scale = 2, nullable = false)
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 }
